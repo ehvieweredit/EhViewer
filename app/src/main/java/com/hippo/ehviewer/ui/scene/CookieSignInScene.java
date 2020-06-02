@@ -52,11 +52,15 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
     @Nullable
     private TextInputLayout mIgneousLayout;
     @Nullable
+    private TextInputLayout mSkLayout;
+    @Nullable
     private EditText mIpbMemberId;
     @Nullable
     private EditText mIpbPassHash;
     @Nullable
     private EditText mIgneous;
+    @Nullable
+    private EditText mSk;
     @Nullable
     private View mOk;
 
@@ -68,7 +72,7 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
     @Nullable
     @Override
     public View onCreateView2(LayoutInflater inflater,
-            @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+                              @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scene_cookie_sign_in, container, false);
         mIpbMemberIdLayout = (TextInputLayout) ViewUtils.$$(view, R.id.ipb_member_id_layout);
         mIpbMemberId = mIpbMemberIdLayout.getEditText();
@@ -79,6 +83,9 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         mIgneousLayout = (TextInputLayout) ViewUtils.$$(view, R.id.igneous_layout);
         mIgneous = mIgneousLayout.getEditText();
         AssertUtils.assertNotNull(mIgneous);
+        mSkLayout = (TextInputLayout) ViewUtils.$$(view, R.id.sk_layout);
+        mSk = mSkLayout.getEditText();
+        AssertUtils.assertNotNull(mSk);
         mOk = ViewUtils.$$(view, R.id.ok);
 
         mIpbPassHash.setOnEditorActionListener(this);
@@ -92,6 +99,7 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         String ipbMemberId = sharedPreferences.getString("ipb_member_id", null);
         String ipbPassHash = sharedPreferences.getString("ipb_pass_hash", null);
         String igneous = sharedPreferences.getString("igneous", null);
+        String sk = sharedPreferences.getString("sk", null);
         boolean getIt = false;
         if (!TextUtils.isEmpty(ipbMemberId)) {
             mIpbMemberId.setText(ipbMemberId);
@@ -103,6 +111,10 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         }
         if (!TextUtils.isEmpty(igneous)) {
             mIgneous.setText(igneous);
+            getIt = true;
+        }
+        if (!TextUtils.isEmpty(sk)) {
+            mIgneous.setText(sk);
             getIt = true;
         }
         if (getIt) {
@@ -127,9 +139,11 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         mIpbMemberIdLayout = null;
         mIpbPassHashLayout = null;
         mIgneousLayout = null;
+        mSkLayout = null;
         mIpbMemberId = null;
         mIpbPassHash = null;
         mIgneous = null;
+        mSk = null;
     }
 
     @Override
@@ -176,13 +190,14 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         Context context = getContext2();
         if (null == context || null == mIpbMemberIdLayout || null == mIpbPassHashLayout ||
                 null == mIgneousLayout || null == mIpbMemberId || null == mIpbPassHash ||
-                null == mIgneous) {
+                null == mIgneous || null == mSkLayout || null == mSk) {
             return;
         }
 
         final String ipbMemberId = mIpbMemberId.getText().toString().trim();
         final String ipbPassHash = mIpbPassHash.getText().toString().trim();
         final String igneous = mIgneous.getText().toString().trim();
+        final String sk = mSk.getText().toString().trim();
 
         if (TextUtils.isEmpty(ipbMemberId)) {
             mIpbMemberIdLayout.setError(getString(R.string.text_is_empty));
@@ -206,13 +221,13 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
                     .setPositiveButton(R.string.i_will_check_it, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            storeCookie(ipbMemberId, ipbPassHash, igneous);
+                            storeCookie(ipbMemberId, ipbPassHash, igneous, sk);
                             setResult(RESULT_OK, null);
                             finish();
                         }
                     }).show();
         } else {
-            storeCookie(ipbMemberId, ipbPassHash, igneous);
+            storeCookie(ipbMemberId, ipbPassHash, igneous, sk);
             setResult(RESULT_OK, null);
             finish();
         }
@@ -223,7 +238,7 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
                 .domain(domain).expiresAt(Long.MAX_VALUE).build();
     }
 
-    private void storeCookie(String id, String hash, String igneous) {
+    private void storeCookie(String id, String hash, String igneous, String sk) {
         Context context = getContext2();
         if (null == context) {
             return;
@@ -239,6 +254,10 @@ public class CookieSignInScene extends SolidScene implements EditText.OnEditorAc
         if (!igneous.isEmpty()) {
             store.addCookie(newCookie(EhCookieStore.KEY_IGNEOUS, igneous, EhUrl.DOMAIN_E));
             store.addCookie(newCookie(EhCookieStore.KEY_IGNEOUS, igneous, EhUrl.DOMAIN_EX));
+        }
+        if (!sk.isEmpty()) {
+            store.addCookie(newCookie(EhCookieStore.KEY_SK, sk, EhUrl.DOMAIN_E));
+            store.addCookie(newCookie(EhCookieStore.KEY_SK, sk, EhUrl.DOMAIN_EX));
         }
     }
 }

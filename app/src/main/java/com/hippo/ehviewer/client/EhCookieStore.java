@@ -32,6 +32,7 @@ public class EhCookieStore extends CookieRepository {
     public static final String KEY_IPD_MEMBER_ID = "ipb_member_id";
     public static final String KEY_IPD_PASS_HASH = "ipb_pass_hash";
     public static final String KEY_IGNEOUS = "igneous";
+    public static final String KEY_SK = "sk";
 
     public static final Cookie sTipsCookie =
             new Cookie.Builder()
@@ -57,7 +58,7 @@ public class EhCookieStore extends CookieRepository {
     }
 
     public static Cookie newCookie(Cookie cookie, String newDomain, boolean forcePersistent,
-            boolean forceLongLive, boolean forceNotHostOnly) {
+                                   boolean forceLongLive, boolean forceNotHostOnly) {
         Cookie.Builder builder = new Cookie.Builder();
         builder.name(cookie.name());
         builder.value(cookie.value());
