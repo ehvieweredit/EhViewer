@@ -18,6 +18,7 @@ package com.hippo.ehviewer.ui.scene;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.annotation.Nullable;
@@ -79,6 +81,7 @@ public class WebViewSignInScene extends SolidScene {
 
         mWebView = new WebView(context);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.setWebViewClient(new LoginWebViewClient());
         mWebView.loadUrl(EhUrl.URL_SIGN_IN);
         return mWebView;
@@ -150,6 +153,24 @@ public class WebViewSignInScene extends SolidScene {
                 setResult(RESULT_OK, null);
                 finish();
             }
+        }
+
+        // Fix the issue that the login page not working on Android 4.1
+        // and likely < 4.4
+        // https://stackoverflow.com/questions/18377769/webview-not-able-to-load-https-url-in-android/34351270#34351270
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return false;
+        }
+
+        @Override
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            //super.onReceivedSslError(view, handler, error);
+
+            // this will ignore the Ssl error and will go forward to your site
+            handler.proceed();
+            error.getCertificate();
         }
     }
 }
