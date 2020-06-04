@@ -22,6 +22,7 @@ package com.hippo.ehviewer.ui;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.annotation.Nullable;
@@ -157,11 +159,23 @@ public class UConfigActivity extends ToolbarActivity {
     }
   }
 
+  // Fix the issue that web pages not working on Android 4.1
+  // and likely < 4.4
+  // https://stackoverflow.com/questions/18377769/webview-not-able-to-load-https-url-in-android/34351270#34351270
   private class UConfigWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
       // Never load other urls
       return true;
+    }
+
+    @Override
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+      //super.onReceivedSslError(view, handler, error);
+
+      // this will ignore the Ssl error and will go forward to your site
+      handler.proceed();
+      error.getCertificate();
     }
 
     @Override
